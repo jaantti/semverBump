@@ -55,7 +55,7 @@ args = parser.parse_args()
 if args.bump:
     if args.bump in ('major', 'minor', 'patch'):
         updateLocal()
-                
+
         clean = checkWorkingDirectory()
         if len(clean) != 0:
             raiseError('Working directory not clean')

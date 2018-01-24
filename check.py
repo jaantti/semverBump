@@ -21,6 +21,14 @@ def checkWorkingDirectory():
     return dirStatus.decode('utf-8')
 
 
+def isRemoteUpToDate():
+    dirStatus = subprocess.check_output(['git', 'cherry'])
+    if len(dirStatus.decode('utf-8')) == 0:
+        return True
+    else:
+        return False
+
+
 def getVersion(versionType):
     ver = ''
     try:
@@ -63,6 +71,10 @@ args = parser.parse_args()
 if args.bump:
     if args.bump in ('major', 'minor', 'patch'):
         updateLocal()
+
+        remoteUpToDate = isRemoteUpToDate()
+        if not isRemoteUpToDate:
+            raiseError('Local changes are not pushed to remote')
 
         clean = checkWorkingDirectory()
         if len(clean) != 0:

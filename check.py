@@ -46,6 +46,14 @@ def updateLocal():
         raiseError('Failed to update from remote: ' + str(e))
 
 
+def tagAndPush(tagName):
+    try:
+        subprocess.run(['git', 'tag', tagName])
+        subprocess.run(['git', 'push', '--tags'])
+    except subprocess.CalledProcessError as e:
+        raiseError('Failed to tag commit: ' + str(e))
+
+
 parser = argparse.ArgumentParser(description='Check and bump software version')
 parser.add_argument('-b', '--bump', help='bump major|minor|patch. Bumps major, minor or patch part of software version', nargs='?')
 # parser.add_argument('-c', '--conf', help='Configuration file name (from dir conf/)', nargs='?')
@@ -89,6 +97,9 @@ if args.bump:
                 sys.exit(0)
         else:
             raiseError('Invalid input')
+
+        tagAndPush(str(nextVersion))
+        print('Success')
 
     else:
         parser.print_help()

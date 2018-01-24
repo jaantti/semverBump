@@ -73,7 +73,7 @@ if args.bump:
         updateLocal()
 
         remoteUpToDate = isRemoteUpToDate()
-        if not isRemoteUpToDate:
+        if not remoteUpToDate:
             raiseError('Local changes are not pushed to remote')
 
         clean = checkWorkingDirectory()

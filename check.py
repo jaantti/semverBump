@@ -27,7 +27,7 @@ def getVersion(versionType):
         if versionType == Version.HEAD:
             ver = subprocess.check_output(['git', 'describe', '--tags', '--exact-match', 'HEAD'])
         elif versionType == Version.LAST:
-            ver = subprocess.check_output(['git', 'describe', '--tags'])
+            ver = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0'])
         else:
             raiseError('Wron versionType:', versionType)
         ver = ver.decode('utf-8').strip()

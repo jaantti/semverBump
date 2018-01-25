@@ -5,6 +5,10 @@ import semantic_version as semver
 import subprocess
 import sys
 
+CONF_FILE = 'conf.hpp'
+CONF_VARIABLE = 'version'
+CONF_LENGTH = 4
+
 
 class Version(Enum):
     LAST = 1
@@ -62,9 +66,26 @@ def tagAndPush(tagName):
         raiseError('Failed to tag commit: ' + str(e))
 
 
+def checkVersionInSource(filename, variable, version):
+    versionCorrect = False;
+    with open(filename, 'r') as f:
+        for line in f:
+            if variable in line:
+                try:
+                    newLine = line[line.index('{') + 1:line.index('}')]
+                    ver = [i.strip() for i in newLine.split(',')]
+                    if len(ver) == CONF_LENGTH and ver[3] == '0':
+                        versionString = '.'.join(ver[:-1])
+                        if semver.validate(versionString) and version == semver.Version(versionString):
+                            versionCorrect = True
+                            break
+                except ValueError:
+                    continue
+    return versionCorrect
+
+
 parser = argparse.ArgumentParser(description='Check and bump software version')
 parser.add_argument('-b', '--bump', help='bump major|minor|patch. Bumps major, minor or patch part of software version', nargs='?')
-# parser.add_argument('-c', '--conf', help='Configuration file name (from dir conf/)', nargs='?')
 
 args = parser.parse_args()
 
@@ -93,6 +114,7 @@ if args.bump:
             raiseError('Previous version not in correct format: ' + versionLast)
 
         oldVersion = semver.Version(versionLast)
+
         nextVersion = semver.Version(versionLast)
         if args.bump == 'major':
             nextVersion = oldVersion.next_major()
@@ -100,6 +122,9 @@ if args.bump:
             nextVersion = oldVersion.next_minor()
         elif args.bump == 'patch':
             nextVersion = oldVersion.next_patch()
+
+        if (not checkVersionInSource(CONF_FILE, CONF_VARIABLE, nextVersion)):
+            raiseError("Version in '" + CONF_FILE + "' needs to be updated to " + str(nextVersion))
 
         print('Updating version:', str(oldVersion), '->', str(nextVersion))
         userInput = input('Is this correct (y/n)?: ')

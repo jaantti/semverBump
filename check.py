@@ -66,20 +66,23 @@ def tagAndPush(tagName):
 
 
 def checkVersionInSource(filename, variable, version):
-    versionCorrect = False;
-    with open(filename, 'r') as f:
-        for line in f:
-            if variable in line:
-                try:
-                    newLine = line[line.index('{') + 1:line.index('}')]
-                    ver = [i.strip() for i in newLine.split(',')]
-                    if len(ver) == CONF_LENGTH and ver[3] == '0':
-                        versionString = '.'.join(ver[:-1])
-                        if semver.validate(versionString) and version == semver.Version(versionString):
-                            versionCorrect = True
-                            break
-                except ValueError:
-                    continue
+    versionCorrect = False
+    try:
+        with open(filename, 'r') as f:
+            for line in f:
+                if variable in line:
+                    try:
+                        newLine = line[line.index('{') + 1:line.index('}')]
+                        ver = [i.strip() for i in newLine.split(',')]
+                        if len(ver) == CONF_LENGTH and ver[3] == '0':
+                            versionString = '.'.join(ver[:-1])
+                            if semver.validate(versionString) and version == semver.Version(versionString):
+                                versionCorrect = True
+                                break
+                    except ValueError:
+                        continue
+    except FileNotFoundError:
+        raiseError('File not found: ' + filename)
     return versionCorrect
 
 

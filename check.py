@@ -41,10 +41,9 @@ def getVersion(versionType):
         elif versionType == Version.LAST:
             ver = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0'])
         else:
-            raiseError('Wron versionType:', versionType)
+            raiseError('Wrong versionType:', versionType)
         ver = ver.decode('utf-8').strip()
     except subprocess.CalledProcessError as e:
-        #print('Failed to get version:', str(e))
         pass
 
     return ver
